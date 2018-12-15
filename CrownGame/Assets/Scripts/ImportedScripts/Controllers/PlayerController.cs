@@ -1,0 +1,220 @@
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using InControl;
+
+[RequireComponent(typeof(Controller2D))]
+public class PlayerController : MonoBehaviour {
+
+    public float moveSpeed = 12;
+    [Header("Jump parameters")]
+    public float jumpMinHeight = 1.5f;
+    public float jumpMaxHeight = 4;
+    public float timeToJumpMaxHeight = 0.4f;
+
+    public float finalMoveSpeed {
+        get {
+            float finalSpeed = moveSpeed;
+            float greatestDebuff = 0.0f;    //Debuffs don't stack, so only the strongest is applied,
+                                            //but buffs DO stack.
+
+            foreach (Modifier modifier in player.ccManager.GetSpeedModifiers()) {
+                if(modifier.totalValue < 0) {
+                    if (modifier.totalValue < greatestDebuff) {
+                        greatestDebuff = modifier.totalValue;
+                    }
+                }
+                else {
+                    finalSpeed += (modifier.totalValue * moveSpeed);
+                }
+            }
+
+            finalSpeed += (greatestDebuff * moveSpeed);
+            return finalSpeed;
+        }
+    }
+
+    [Header("Wall jumping parameters")]
+    public float maxWallSlideSpeed = 3;
+    public Vector2 wallLeap;
+    [Range(0.0f, 0.5f)]
+    public float wallJumpMomentumDuration = 0.3f;
+    public float wallStickTime = 0.4f;
+    private float wallUnstickTime;
+
+    internal float accelerationTimeAirborne = 0.2f;
+    internal float accelerationTimeGrounded = 0.1f;
+
+    private float gravity;
+    public float finalGravity {
+        get {
+            float finalGravity = gravity;
+            float greatestDebuff = 0.0f;
+
+            foreach(Modifier modifier in player.ccManager.GetGravityModifiers()) {
+                if(modifier.totalValue > 0) {  //Greater than 0 means it's INCREASING GRAVITY
+                    if(modifier.totalValue > greatestDebuff) {
+                        Debug.Log("Debuffing = " + modifier.totalValue);
+                        greatestDebuff = modifier.totalValue;
+                    }
+                }
+                else {
+                    Debug.Log("Buffing!!! = " + modifier.totalValue);
+                    finalGravity += (modifier.totalValue * gravity);
+                }
+            }
+
+            finalGravity += (greatestDebuff * gravity);
+
+            return finalGravity;
+        }
+    }
+
+    private float jumpGravity {
+        get {
+            float diff = Mathf.Abs(gravity) - Mathf.Abs(finalGravity);
+            return Mathf.Abs(gravity - diff);
+        }
+    }
+
+    private float maxJumpVelocity {
+        get {
+            return jumpGravity * timeToJumpMaxHeight;
+        }
+    }
+    private float minJumpVelocity {
+        get {
+            return Mathf.Sqrt(2 * jumpGravity * jumpMinHeight);
+        }
+    }
+
+    private Vector3 velocity;
+
+    internal float smoothingVelocityX;
+
+    internal Controller2D controller2D;
+    internal Animator playerAnimator;
+    internal SpriteRenderer playerSpriteRenderer;
+
+    internal float xHeading;
+    internal Collider2D playerCollider;
+
+    internal Player player;
+    private PlayerState currentState;
+
+    public enum States { IDLE, JUMPING, SLIDING, LOCKED, WALL_LEAP}
+    public States currentEnumState;
+    internal bool isLocked;
+
+    /*Temporary variables*/
+    private float initialXScale;
+    private Vector2 knockbackForce = Vector2.zero;
+
+    // Input variables
+    float xAxis = 0, yAxis = 0;
+
+    private void Awake() {
+        controller2D = GetComponent<Controller2D>();
+        playerAnimator = GetComponent<Animator>();
+        playerSpriteRenderer = GetComponent<SpriteRenderer>();
+        playerCollider = GetComponent<Collider2D>();
+        player = GetComponent<Player>();
+
+        initialXScale = transform.localScale.x;
+
+        xHeading = 1;
+    }
+
+    private void Start () {
+        gravity = -(2 * jumpMaxHeight) / Mathf.Pow(timeToJumpMaxHeight, 2);
+        currentState = new IdlePlayerState(player);
+	}
+
+    public void Hit(GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {
+        currentState.Hit(attacker, ref hitRecord, knockbackForce);
+    }
+
+    public void Hit(GameObject attacker, ref HitRecord hitRecord) {
+        currentState.Hit(attacker, ref hitRecord);
+    }
+
+    public void Knockback(Vector2 force) {
+        knockbackForce += force;
+    }
+
+    public void SwitchState(States state) {
+        currentEnumState = state;
+        switch (state) {
+            case States.IDLE:
+                currentState = new IdlePlayerState(player);
+                break;
+            case States.JUMPING:
+                currentState = new JumpPlayerState(player, minJumpVelocity, maxJumpVelocity, ref velocity);
+                break;
+            case States.SLIDING:
+                currentState = new SlidingPlayerState(player, maxWallSlideSpeed, wallLeap, wallStickTime, wallUnstickTime);
+                break;
+            case States.LOCKED:
+                currentState = new LockedState(player);
+                break;
+            case States.WALL_LEAP:
+                currentState = new WallJumpPlayerState(player, wallLeap, wallJumpMomentumDuration, ref velocity);
+                break;
+        }
+    }
+
+    public void SwitchState(PlayerState newState) {
+        currentState = newState;
+    }
+
+    private void SetPlayerFlip() {
+        xAxis = player.inputDevice.LeftStick.X;
+        yAxis = player.inputDevice.LeftStick.Y;
+
+        if(xAxis != 0 || yAxis != 0) {
+            Vector3 joystickPos = new Vector3(transform.position.x + xAxis,
+                                              transform.position.y + yAxis,
+                                              transform.position.z);
+            bool isFlipped = joystickPos.x < transform.position.x;
+        }
+    }
+	
+	void Update () {
+
+        if (MatchManager.instance.isPaused) {
+            return;
+        }
+
+        Vector2 inputs = new Vector2(player.inputDevice.LeftStick.X, player.inputDevice.LeftStick.Y);
+
+        isLocked = player.inputDevice.GetControl(PlayerActions.LOCK);
+
+        if (isLocked) {
+            inputs = Vector2.zero;
+        }
+
+        if(knockbackForce != Vector2.zero) {
+            velocity += (Vector3)knockbackForce;
+            knockbackForce = Vector2.zero;
+        }
+
+        currentState.Execute(ref inputs, ref velocity);
+
+        velocity.y += (finalGravity * Time.deltaTime);
+
+        controller2D.Move(velocity * Time.deltaTime, inputs);
+
+        xHeading = inputs.x != 0 ? Mathf.Sign(inputs.x) : xHeading;
+
+        SetPlayerFlip();
+
+        if (controller2D.collisionInfo.above || controller2D.collisionInfo.below) {
+            velocity.y = 0;
+        }
+
+        //playerAnimator.SetBool("walk", controller2D.collisionInfo.below && inputs.x != 0);
+        //playerAnimator.SetBool("air", !controller2D.collisionInfo.below);
+        //playerAnimator.SetFloat("velocityY", Mathf.Sign(velocity.y));
+        //playerAnimator.SetFloat("speedRatio", velocity.magnitude / moveSpeed);
+    }
+}

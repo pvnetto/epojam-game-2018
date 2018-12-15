@@ -1,0 +1,17 @@
+fileFormatVersion: 2
+guid: daf4400fa97a9fb4f88eddce170665e6
+timeCreated: 1497749867
+licenseType: Free
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - packPrefab: {fileID: 1794284773958490, guid: c245dc0295f55ee488a7b3a50bb82dd8,
+      type: 2}
+  - dieExplosionPrefab: {fileID: 1287821333199568, guid: a4583327f4e25e9458fcfd018692ade0,
+      type: 2}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
