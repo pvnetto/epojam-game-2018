@@ -23,6 +23,14 @@ public abstract class PlayerState {
         controller2D = controller.controller2D;
     }
 
+    public virtual void Enter() {
+        // TODO: Implement Enter transition
+    }
+
+    public void Exit() {
+        // TODO: Implement Exit transition
+    }
+
     public virtual void Hit(GameObject attacker, ref HitRecord hitRecord) {
         Hit(attacker, ref hitRecord, Vector2.zero);
     }

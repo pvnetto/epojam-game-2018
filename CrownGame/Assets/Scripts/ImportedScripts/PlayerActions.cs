@@ -9,9 +9,7 @@ public static class PlayerActions {
     public static InputControlType JUMP = InputControlType.Action1;
     public static InputControlType FIRE_1 = InputControlType.Action3;
     public static InputControlType FIRE_2 = InputControlType.Action4;
-    public static InputControlType SUPP = InputControlType.Action2;
-    public static InputControlType SUPP_2 = InputControlType.RightTrigger;
-    public static InputControlType LOCK = InputControlType.RightBumper;
+    public static InputControlType ACTION_1 = InputControlType.RightTrigger;
 
     public static InputControlType PAUSE = InputControlType.LeftTrigger;
     public static InputControlType SUBMIT = InputControlType.Action1;

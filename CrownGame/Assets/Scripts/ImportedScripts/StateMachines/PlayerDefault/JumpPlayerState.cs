@@ -20,17 +20,19 @@ public class JumpPlayerState : PlayerState {
                                       ref controller.smoothingVelocityX,
                                       controller.controller2D.collisionInfo.below ? controller.accelerationTimeGrounded : controller.accelerationTimeAirborne);
 
-        if (controller.controller2D.collisionInfo.below) {
+        if (owner.inputDevice.GetControl(PlayerActions.ACTION_1).WasPressed) {
+            controller.SwitchState(PlayerController.States.DASHING);
+        }
+        else if (controller.controller2D.collisionInfo.below) {
             controller.SwitchState(PlayerController.States.IDLE);
-            return;
         }
         else if (!owner.isStunned)  {
             if ((controller.controller2D.collisionInfo.left || controller.controller2D.collisionInfo.right)
                || (controller.controller2D.collisionInfo.oldLeft || controller.controller2D.collisionInfo.oldRight)) {
+
                 controller.SwitchState(PlayerController.States.SLIDING);
-                return;
             }
-            if (owner.inputDevice.GetControl(PlayerActions.JUMP).WasReleased) {
+            else if (owner.inputDevice.GetControl(PlayerActions.JUMP).WasReleased) {
                 if (velocity.y > minJumpVelocity) {
                     velocity.y = minJumpVelocity;
                 }

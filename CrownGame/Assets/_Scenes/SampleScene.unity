@@ -487,9 +487,12 @@ MonoBehaviour:
   jumpMaxHeight: 5
   timeToJumpMaxHeight: 0.35
   maxWallSlideSpeed: 2
-  wallLeap: {x: 0, y: 0}
-  wallJumpMomentumDuration: 0.3
+  wallLeap: {x: 20, y: 20}
+  wallJumpMomentumDuration: 0.5
   wallStickTime: 0
+  dashDuration: 0.1
+  dashSpeed: 40
+  dashCooldown: 0.5
   currentEnumState: 0
 --- !u!114 &1928515330
 MonoBehaviour:
@@ -505,8 +508,8 @@ MonoBehaviour:
   collisionMask:
     serializedVersion: 2
     m_Bits: 55
-  horizontalRayCount: 30
-  verticalRayCount: 30
+  horizontalRayCount: 20
+  verticalRayCount: 20
   maxSlopeClimbAngle: 80
   maxSlopeDescendAngle: 75
 --- !u!114 &1928515331
