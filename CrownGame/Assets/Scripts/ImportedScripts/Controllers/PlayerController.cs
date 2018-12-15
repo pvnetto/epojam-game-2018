@@ -34,14 +34,34 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
+    [Range(0.0f, 0.3f)]
+    public float coyoteTime = 0.1f;
+    public float timeAirborne = 0.0f;
+
     [Header("Wall jumping parameters")]
     public float maxWallSlideSpeed = 3;
     public Vector2 wallLeap;
     [Range(0.0f, 0.5f)]
-    public float wallJumpMomentumDuration = 0.3f;
+    public float wallJumpDuration = 0.3f;
     public float wallStickTime = 0.4f;
-    private float wallUnstickTime;
 
+    public float wallJumpEndTime;
+
+    public float speedRatio {
+        get {
+            if (Time.time >= wallJumpEndTime || wallJumpDuration == 0) {
+                return 1.0f;
+            }
+            else {
+                return 1.0f - ((wallJumpEndTime - Time.time) / wallJumpDuration);
+            }
+        }
+    }
+
+    [HideInInspector]
+    public float wallUnstickTime;
+
+    // TODO: Move to crown
     [Header("Dash parameters")]
     [Range(0.1f, 0.5f)]
     public float dashDuration = 0.1f;
@@ -49,6 +69,20 @@ public class PlayerController : MonoBehaviour {
     public int dashSpeed = 60;
     [Range(2.0f, 5.0f)]
     public float dashCooldown = 0.5f;
+    public float currentDashCooldown;
+   
+    public Vector2 dashLeap {
+        get {
+            float dashX = xAxis == 0 ? 0 : Mathf.RoundToInt(xAxis);
+            float dashY = yAxis == 0 ? 0 : Mathf.RoundToInt(yAxis);
+            if (dashX == 0 && dashY == 0) {
+                dashX = xHeading;
+            }
+
+            return new Vector2(dashX, dashY);
+        }
+    }
+
     private float lastDashTime = 0.0f;
 
     public bool isDashAvailable {
@@ -93,12 +127,12 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    private float maxJumpVelocity {
+    public float maxJumpVelocity {
         get {
             return jumpGravity * timeToJumpMaxHeight;
         }
     }
-    private float minJumpVelocity {
+    public float minJumpVelocity {
         get {
             return Mathf.Sqrt(2 * jumpGravity * jumpMinHeight);
         }
@@ -143,15 +177,12 @@ public class PlayerController : MonoBehaviour {
 
     private void Start () {
         gravity = -(2 * jumpMaxHeight) / Mathf.Pow(timeToJumpMaxHeight, 2);
-        currentState = new IdlePlayerState(player);
+
+        currentState = IdlePlayerState.Instance;
 	}
 
     public void Hit(GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {
-        currentState.Hit(attacker, ref hitRecord, knockbackForce);
-    }
-
-    public void Hit(GameObject attacker, ref HitRecord hitRecord) {
-        currentState.Hit(attacker, ref hitRecord);
+        currentState.Hit(player, attacker, ref hitRecord, knockbackForce);
     }
 
     public void Knockback(Vector2 force) {
@@ -162,16 +193,16 @@ public class PlayerController : MonoBehaviour {
         currentEnumState = state;
         switch (state) {
             case States.IDLE:
-                SwitchState(new IdlePlayerState(player));
+                SwitchState(IdlePlayerState.Instance);
                 break;
             case States.JUMPING:
-                SwitchState(new JumpPlayerState(player, minJumpVelocity, maxJumpVelocity, ref velocity));
+                SwitchState(JumpPlayerState.Instance);
                 break;
             case States.SLIDING:
-                SwitchState(new SlidingPlayerState(player, maxWallSlideSpeed, wallLeap, wallStickTime, wallUnstickTime));
+                SwitchState(SlidingPlayerState.Instance);
                 break;
             case States.WALL_JUMPING:
-                SwitchState(new WallJumpPlayerState(player, wallLeap, wallJumpMomentumDuration, ref velocity));
+                SwitchState(WallJumpPlayerState.Instance);
                 break;
             case States.DASHING:
                 float dashX = xAxis == 0 ? 0 : Mathf.RoundToInt(xAxis);
@@ -179,17 +210,17 @@ public class PlayerController : MonoBehaviour {
                 if (dashX == 0 && dashY == 0) {
                     dashX = xHeading;
                 }
-                SwitchState(new DashState(player, new Vector2(dashX, dashY), dashDuration, dashSpeed, ref velocity));
+                SwitchState(DashState.Instance);
                 break;
         }
     }
 
     public void SwitchState(PlayerState newState) {
         if(currentState != null) {
-            currentState.Exit();
+            currentState.Exit(player);
         }
         currentState = newState;
-        currentState.Enter();
+        currentState.Enter(player, ref velocity);
     }
 
     private void SetPlayerFlip() {
@@ -226,7 +257,7 @@ public class PlayerController : MonoBehaviour {
             knockbackForce = Vector2.zero;
         }
 
-        currentState.Execute(ref inputs, ref velocity);
+        currentState.Execute(player, ref inputs, ref velocity);
 
         //velocity.y += (finalGravity * Time.deltaTime);
         if (!(currentState is DashState)) {

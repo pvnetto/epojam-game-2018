@@ -91,10 +91,6 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
         controller.Hit(attacker, ref hitRecord, knockbackForce);
     }
 
-    public void Hit(GameObject attacker, ref HitRecord hitRecord) {
-        controller.Hit(attacker, ref hitRecord);
-    }
-
     public void Stun(GameObject source, float duration) {
         ccManager.Stun(duration);
     }

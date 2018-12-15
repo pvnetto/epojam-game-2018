@@ -5,37 +5,57 @@ using UnityEngine;
 
 public class IdlePlayerState : PlayerState {
 
-    public IdlePlayerState(Player owner) : base(owner) {}
+    private static readonly IdlePlayerState singleton = new IdlePlayerState();
+
+    static IdlePlayerState() {
+    }
+
+    private IdlePlayerState() {
+    }
+
+    public static IdlePlayerState Instance {
+        get {
+            return singleton;
+        }
+    }
 
     // If the player is airborne, it has 'coyote time' seconds to jump before entering jumping state
-    private float coyoteTime = 0.1f;
-    private float timeAirborne = 0.0f;
+    //private float coyoteTime = 0.1f;
+    //private float timeAirborne = 0.0f;
 
-    protected override void StateUpdate(ref Vector2 inputs, ref Vector3 velocity) {
+    public override void Enter(Player player, ref Vector3 velocity) {
+        player.controller.timeAirborne = 0.0f;
+    }
 
-        float targetVelocityX = inputs.x * controller.finalMoveSpeed;
+    public override void Exit(Player player) {
+        player.controller.timeAirborne = 0.0f;
+    }
+
+    protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
+
+        float targetVelocityX = inputs.x * player.controller.finalMoveSpeed;
 
         velocity.x = Mathf.SmoothDamp(velocity.x,
                                       targetVelocityX,
-                                      ref controller.smoothingVelocityX,
-                                      controller.controller2D.collisionInfo.below ? controller.accelerationTimeGrounded : controller.accelerationTimeAirborne);
+                                      ref player.controller.smoothingVelocityX,
+                                      player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
 
-        if (!owner.isStunned) {
-            if (!collisionInfo.below) {
-                timeAirborne += Time.deltaTime;
+        if (!player.isStunned) {
+            if (!player.controller.controller2D.collisionInfo.below) {
+                player.controller.timeAirborne += Time.deltaTime;
             }
-            if (owner.inputDevice.GetControl(PlayerActions.ACTION_1).WasPressed) {
-                controller.SwitchState(PlayerController.States.DASHING);
+            if (player.inputDevice.GetControl(PlayerActions.ACTION_1).WasPressed) {
+                player.controller.SwitchState(PlayerController.States.DASHING);
             }
-            else if (owner.inputDevice.GetControl(PlayerActions.JUMP).WasPressed) {
-                controller.SwitchState(PlayerController.States.JUMPING);
+            else if (player.inputDevice.GetControl(PlayerActions.JUMP).WasPressed) {
+                player.controller.SwitchState(PlayerController.States.JUMPING);
             }
-            else if (timeAirborne > coyoteTime) {
+            else if (player.controller.timeAirborne > player.controller.coyoteTime) {
                 // TODO: Enter Airborne state
                 //controller.SwitchState(PlayerController.States.JUMPING);
             }
-            else if (!collisionInfo.below && (collisionInfo.left || collisionInfo.right)) {
-                controller.SwitchState(PlayerController.States.SLIDING);
+            else if (!player.controller.controller2D.collisionInfo.below && (player.controller.controller2D.collisionInfo.left || player.controller.controller2D.collisionInfo.right)) {
+                player.controller.SwitchState(PlayerController.States.SLIDING);
             }
         }
     }
