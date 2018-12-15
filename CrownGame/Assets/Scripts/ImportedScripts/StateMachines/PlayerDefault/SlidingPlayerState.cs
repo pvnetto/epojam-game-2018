@@ -56,9 +56,7 @@ public class SlidingPlayerState : PlayerState {
             }
 
             if (owner.inputDevice.GetControl(PlayerActions.JUMP).WasPressed) {
-                //velocity.x = -wallDirectionX * wallLeap.x;
-                //velocity.y = wallLeap.y;
-                controller.SwitchState(PlayerController.States.WALL_LEAP);
+                controller.SwitchState(PlayerController.States.WALL_JUMPING);
             }
         }
     }

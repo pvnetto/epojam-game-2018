@@ -42,6 +42,22 @@ public class PlayerController : MonoBehaviour {
     public float wallStickTime = 0.4f;
     private float wallUnstickTime;
 
+    [Header("Dash parameters")]
+    [Range(0.1f, 0.5f)]
+    public float dashDuration = 0.1f;
+    [Range(20, 120)]
+    public int dashSpeed = 60;
+    [Range(2.0f, 5.0f)]
+    public float dashCooldown = 0.5f;
+    private float lastDashTime = 0.0f;
+
+    public bool isDashAvailable {
+        get {
+            return lastDashTime <= Time.time + dashCooldown;
+        }
+    }
+
+
     internal float accelerationTimeAirborne = 0.2f;
     internal float accelerationTimeGrounded = 0.1f;
 
@@ -102,7 +118,7 @@ public class PlayerController : MonoBehaviour {
     internal Player player;
     private PlayerState currentState;
 
-    public enum States { IDLE, JUMPING, SLIDING, LOCKED, WALL_LEAP}
+    public enum States { IDLE, JUMPING, AIRBORNE, SLIDING, WALL_JUMPING, DASHING}
     public States currentEnumState;
     internal bool isLocked;
 
@@ -146,30 +162,42 @@ public class PlayerController : MonoBehaviour {
         currentEnumState = state;
         switch (state) {
             case States.IDLE:
-                currentState = new IdlePlayerState(player);
+                SwitchState(new IdlePlayerState(player));
                 break;
             case States.JUMPING:
-                currentState = new JumpPlayerState(player, minJumpVelocity, maxJumpVelocity, ref velocity);
+                SwitchState(new JumpPlayerState(player, minJumpVelocity, maxJumpVelocity, ref velocity));
                 break;
             case States.SLIDING:
-                currentState = new SlidingPlayerState(player, maxWallSlideSpeed, wallLeap, wallStickTime, wallUnstickTime);
+                SwitchState(new SlidingPlayerState(player, maxWallSlideSpeed, wallLeap, wallStickTime, wallUnstickTime));
                 break;
-            case States.LOCKED:
-                currentState = new LockedState(player);
+            case States.WALL_JUMPING:
+                SwitchState(new WallJumpPlayerState(player, wallLeap, wallJumpMomentumDuration, ref velocity));
                 break;
-            case States.WALL_LEAP:
-                currentState = new WallJumpPlayerState(player, wallLeap, wallJumpMomentumDuration, ref velocity);
+            case States.DASHING:
+                float dashX = xAxis == 0 ? 0 : Mathf.RoundToInt(xAxis);
+                float dashY = yAxis == 0 ? 0 : Mathf.RoundToInt(yAxis);
+                if (dashX == 0 && dashY == 0) {
+                    dashX = xHeading;
+                }
+                SwitchState(new DashState(player, new Vector2(dashX, dashY), dashDuration, dashSpeed, ref velocity));
                 break;
         }
     }
 
     public void SwitchState(PlayerState newState) {
+        if(currentState != null) {
+            currentState.Exit();
+        }
         currentState = newState;
+        currentState.Enter();
     }
 
     private void SetPlayerFlip() {
-        xAxis = player.inputDevice.LeftStick.X;
-        yAxis = player.inputDevice.LeftStick.Y;
+        float dPadX = player.inputDevice.DPadX, stickX = player.inputDevice.LeftStick.X;
+        float dPadY = player.inputDevice.DPadY, stickY = player.inputDevice.LeftStick.Y;
+
+        xAxis = Mathf.Abs(dPadX) > Mathf.Abs(stickX) ? dPadX : stickX;
+        yAxis = Mathf.Abs(dPadY) > Mathf.Abs(stickY) ? dPadY : stickY;
 
         if(xAxis != 0 || yAxis != 0) {
             Vector3 joystickPos = new Vector3(transform.position.x + xAxis,
@@ -185,9 +213,9 @@ public class PlayerController : MonoBehaviour {
             return;
         }
 
-        Vector2 inputs = new Vector2(player.inputDevice.LeftStick.X, player.inputDevice.LeftStick.Y);
+        Vector2 inputs = new Vector2(xAxis, yAxis);
 
-        isLocked = player.inputDevice.GetControl(PlayerActions.LOCK);
+        isLocked = player.inputDevice.GetControl(PlayerActions.ACTION_1);
 
         if (isLocked) {
             inputs = Vector2.zero;
@@ -200,7 +228,10 @@ public class PlayerController : MonoBehaviour {
 
         currentState.Execute(ref inputs, ref velocity);
 
-        velocity.y += (finalGravity * Time.deltaTime);
+        //velocity.y += (finalGravity * Time.deltaTime);
+        if (!(currentState is DashState)) {
+            velocity.y += (finalGravity * Time.deltaTime);
+        }
 
         controller2D.Move(velocity * Time.deltaTime, inputs);
 

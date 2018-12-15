@@ -47,12 +47,10 @@ public class WallJumpPlayerState : PlayerState {
 
         if (controller.controller2D.collisionInfo.below) {
             controller.SwitchState(PlayerController.States.IDLE);
-            return;
         }
         else if (!owner.isStunned) {
             if ((controller.controller2D.collisionInfo.left || controller.controller2D.collisionInfo.right)) {
                 controller.SwitchState(PlayerController.States.SLIDING);
-                return;
             }
         }
 
