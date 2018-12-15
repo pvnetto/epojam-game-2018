@@ -9,17 +9,16 @@ public class LevelEditor : MonoBehaviour
 
     private void Start()
     {
-        loadSource();
+        //loadSource();
     }
 
-    private void loadSource()
+    public Vector2 loadSource()
     {
         for (int i = 0; i < source.width; i++)
         {
             for (int j = 0; j < source.height; j++)
             {
                 Color color = source.GetPixel(i, j);
-                //Debug.Log(color.a);
                 if (color.a == 0)
                 {
                     continue;
@@ -27,6 +26,7 @@ public class LevelEditor : MonoBehaviour
                 loadPixel(color, i, j);
             }
         }
+        return new Vector2(source.width, source.height);
     }
 
     private void loadPixel(Color color, int x, int y)
