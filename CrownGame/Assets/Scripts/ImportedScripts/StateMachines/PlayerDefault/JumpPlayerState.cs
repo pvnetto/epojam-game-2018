@@ -19,14 +19,11 @@ public class JumpPlayerState : PlayerState {
         }
     }
 
-
     public override void Enter(Player player, ref Vector3 velocity) {
         velocity.y = player.controller.maxJumpVelocity;
     }
 
-    public override void Exit(Player player) {
-
-    }
+    public override void Exit(Player player) {  }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
         float targetVelocityX = inputs.x * player.controller.finalMoveSpeed;
@@ -36,7 +33,7 @@ public class JumpPlayerState : PlayerState {
                                       ref player.controller.smoothingVelocityX,
                                       player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
 
-        if (player.inputDevice.GetControl(PlayerActions.ACTION_1).WasPressed) {
+        if (player.inputDevice.GetControl(PlayerActions.ACTION_1).WasReleased && player.controller.isDashAvailable) {
             player.controller.SwitchState(PlayerController.States.DASHING);
         }
         else if (player.controller.controller2D.collisionInfo.below) {

@@ -8,7 +8,7 @@ public abstract class PlayerState {
 
     public abstract void Exit(Player player);
 
-    public void Hit(Player player, GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {
+    public virtual void Hit(Player player, GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {
         hitRecord.hitObject = player;
         hitRecord.hitObjectID = player.playerID;
         hitRecord.reflected = false;

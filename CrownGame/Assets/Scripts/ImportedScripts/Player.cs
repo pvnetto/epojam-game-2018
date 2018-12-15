@@ -39,8 +39,11 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
         //TODO Remove this check
         // This is used for editor testing purposes. It automatically assigns an available ID to the player.
         if(playerID == 0) {
-            Debug.LogError("PlayerID is 0!");
-            SetPlayerID(MatchManager.instance ? MatchManager.instance.GetAvailableID() : 1);
+            //Debug.LogError("PlayerID is 0!");
+            if (MatchManager.instance) {
+                SetPlayerID(MatchManager.instance.SubscribePlayer(this));
+            }
+            //SetPlayerID(MatchManager.instance ? MatchManager.instance.GetAvailableID() : 1);
         }
 
         Debug.Log(InputManager.Devices.Count);

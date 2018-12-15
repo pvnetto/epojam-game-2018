@@ -18,50 +18,44 @@ public class DashState : PlayerState {
         }
     }
 
-    //public Vector2 dashLeap;
-    //public float dashDuration;
-    //private float currentDuration = 0.0f;
+    public override void Hit(Player player, GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {
+        hitRecord.hitObject = player;
+        hitRecord.hitObjectID = player.playerID;
+        hitRecord.reflected = true;
 
-    //private float maxSpeed;
-
-    //public DashState(Player owner, Vector2 dashLeap, float dashDuration, float maxSpeed, ref Vector3 velocity) : base(owner) {
-    //    this.dashLeap = dashLeap;
-    //    this.dashDuration = dashDuration;
-    //    this.maxSpeed = maxSpeed;
-    //}
+        player.Knockback(knockbackForce);
+    }
 
     public override void Enter(Player player, ref Vector3 velocity) {
-        int wallDirectionX = player.controller.controller2D.collisionInfo.left ? -1 : 1;
-        velocity.x = -wallDirectionX * player.controller.dashLeap.x;
-        velocity.y = player.controller.dashLeap.y;
+        player.controller.isDashBack = false;
     }
 
     public override void Exit(Player player) {
+        player.controller.currentDashChargeTime = 0.0f;
     }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
 
-        player.controller.currentDashCooldown += Time.deltaTime;
+        player.controller.currentDashDuration += Time.deltaTime;
 
         //inputs = inputs * maxSpeed;
 
-        float targetVelocityX = player.controller.dashLeap.x * player.controller.dashSpeed;
+        float targetVelocityX = player.controller.dashLeap.x * player.controller.dashSpeed * player.controller.dashCharge;
 
         velocity.x = targetVelocityX;
         //velocity.x = Mathf.SmoothDamp(velocity.x,
         //                              targetVelocityX,
-        //                              ref controller.smoothingVelocityX,
-        //                              controller.controller2D.collisionInfo.below ? controller.accelerationTimeGrounded : controller.accelerationTimeAirborne);
+        //                              ref player.controller.smoothingVelocityX,
+        //                              player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
+        
+        velocity.y = player.controller.dashLeap.y * player.controller.dashSpeed * player.controller.dashCharge;
 
-        velocity.y = player.controller.dashLeap.y * player.controller.dashSpeed;
-
-        if (player.controller.currentDashCooldown >= player.controller.dashDuration) {
+        if (player.controller.currentDashDuration >= player.controller.maxDashDuration) {
             if (player.controller.controller2D.collisionInfo.below) {
                 player.controller.SwitchState(PlayerController.States.IDLE);
             }
             else {
-                // TODO: Switch to Airborne
-                player.controller.SwitchState(PlayerController.States.IDLE);
+                player.controller.SwitchState(PlayerController.States.AIRBORNE);
             }
         }
 

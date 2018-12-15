@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class IdlePlayerState : PlayerState {
+public class AirborneState : PlayerState {
 
-    private static readonly IdlePlayerState singleton = new IdlePlayerState();
+    private static readonly AirborneState singleton = new AirborneState();
 
-    static IdlePlayerState() {
+    static AirborneState() {
     }
 
-    private IdlePlayerState() {
+    private AirborneState() {
     }
 
-    public static IdlePlayerState Instance {
+    public static AirborneState Instance {
         get {
             return singleton;
         }
     }
 
-    public override void Enter(Player player, ref Vector3 velocity) {
-        player.controller.timeAirborne = 0.0f;
-        player.controller.isDashBack = true;
-    }
+    public override void Enter(Player player, ref Vector3 velocity) {   }
 
     public override void Exit(Player player) {  }
 
@@ -36,18 +32,11 @@ public class IdlePlayerState : PlayerState {
                                       player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
 
         if (!player.isStunned) {
-            if (!player.controller.controller2D.collisionInfo.below) {
-                player.controller.timeAirborne += Time.deltaTime;
-            }
-
             if (player.inputDevice.GetControl(PlayerActions.ACTION_1).WasReleased && player.controller.isDashAvailable) {
                 player.controller.SwitchState(PlayerController.States.DASHING);
             }
-            else if (player.inputDevice.GetControl(PlayerActions.JUMP).WasPressed) {
-                player.controller.SwitchState(PlayerController.States.JUMPING);
-            }
-            else if (player.controller.timeAirborne > player.controller.coyoteTime) {
-                player.controller.SwitchState(PlayerController.States.AIRBORNE);
+            else if (player.controller.controller2D.collisionInfo.below) {
+                player.controller.SwitchState(PlayerController.States.IDLE);
             }
             else if (!player.controller.controller2D.collisionInfo.below && (player.controller.controller2D.collisionInfo.left || player.controller.controller2D.collisionInfo.right)) {
                 player.controller.SwitchState(PlayerController.States.SLIDING);
