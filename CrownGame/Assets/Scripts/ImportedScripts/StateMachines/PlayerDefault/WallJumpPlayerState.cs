@@ -5,52 +5,68 @@ using UnityEngine;
 
 public class WallJumpPlayerState : PlayerState {
 
-    public Vector2 wallLeap;
-    public float leapDuration;
+    private static readonly WallJumpPlayerState singleton = new WallJumpPlayerState();
 
-    private float wallJumpMomentumEnd;
-    private float speedRatio {
+    static WallJumpPlayerState() {
+    }
+
+    private WallJumpPlayerState() {
+    }
+
+    public static WallJumpPlayerState Instance {
         get {
-            if(Time.time >= wallJumpMomentumEnd || leapDuration == 0) {
-                return 1.0f;
-            }
-            else {
-                return 1.0f - ((wallJumpMomentumEnd - Time.time) / leapDuration);
-            }
+            return singleton;
         }
     }
 
-    public WallJumpPlayerState(Player owner, Vector2 wallLeap, float duration, ref Vector3 velocity) : base(owner) {
-        this.wallLeap = wallLeap;
-        this.leapDuration = duration;
-        this.wallJumpMomentumEnd = Time.time + leapDuration;
+    //public Vector2 wallLeap;
+    //public float leapDuration;
 
-        StateEnter(ref velocity);
+    //private float wallJumpMomentumEnd;
+    //private float speedRatio {
+    //    get {
+    //        if(Time.time >= wallJumpMomentumEnd || leapDuration == 0) {
+    //            return 1.0f;
+    //        }
+    //        else {
+    //            return 1.0f - ((wallJumpMomentumEnd - Time.time) / leapDuration);
+    //        }
+    //    }
+    //}
+
+    //public WallJumpPlayerState(Player owner, Vector2 wallLeap, float duration, ref Vector3 velocity) : base(owner) {
+    //    this.wallLeap = wallLeap;
+    //    this.leapDuration = duration;
+    //    this.wallJumpMomentumEnd = Time.time + leapDuration;
+    //}
+
+    public override void Enter(Player player, ref Vector3 velocity) {
+        player.controller.wallJumpEndTime = Time.time + player.controller.wallJumpDuration;
+
+        int wallDirectionX = player.controller.controller2D.collisionInfo.left ? -1 : 1;
+        velocity.x = -wallDirectionX * player.controller.wallLeap.x;
+        velocity.y = player.controller.wallLeap.y;
     }
 
-    protected void StateEnter(ref Vector3 velocity) {
-        int wallDirectionX = controller.controller2D.collisionInfo.left ? -1 : 1;
-        velocity.x = -wallDirectionX * wallLeap.x;
-        velocity.y = wallLeap.y;
-    }
+    public override void Exit(Player player) {  }
 
-    protected override void StateUpdate(ref Vector2 inputs, ref Vector3 velocity) {
+    protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
 
-        inputs = inputs * speedRatio;
+        inputs = inputs * player.controller.speedRatio;
 
-        float targetVelocityX = inputs.x * controller.finalMoveSpeed;
+        float targetVelocityX = inputs.x * player.controller.finalMoveSpeed;
 
         velocity.x = Mathf.SmoothDamp(velocity.x,
                                       targetVelocityX,
-                                      ref controller.smoothingVelocityX,
-                                      controller.controller2D.collisionInfo.below ? controller.accelerationTimeGrounded : controller.accelerationTimeAirborne);
+                                      ref player.controller.smoothingVelocityX,
+                                      player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
 
-        if (controller.controller2D.collisionInfo.below) {
-            controller.SwitchState(PlayerController.States.IDLE);
+        if (player.controller.controller2D.collisionInfo.below) {
+            player.controller.SwitchState(PlayerController.States.IDLE);
         }
-        else if (!owner.isStunned) {
-            if ((controller.controller2D.collisionInfo.left || controller.controller2D.collisionInfo.right)) {
-                controller.SwitchState(PlayerController.States.SLIDING);
+        else if (!player.isStunned) {
+            if ((player.controller.controller2D.collisionInfo.left || player.controller.controller2D.collisionInfo.right)) {
+                player.controller.SwitchState(PlayerController.States.SLIDING);
             }
         }
 

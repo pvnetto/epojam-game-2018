@@ -5,58 +5,64 @@ using UnityEngine;
 
 public class SlidingPlayerState : PlayerState {
 
-    public float maxWallSlideSpeed;
-    public Vector2 wallLeap;
-    public float wallStickTime;
-    private float wallUnstickTime;
+    private static readonly SlidingPlayerState singleton = new SlidingPlayerState();
 
-    public SlidingPlayerState(Player player, float maxWallSlideSpeed, Vector2 wallLeap, float wallStickTime,
-        float wallUnstickTime) : base(player) {
-
-        this.maxWallSlideSpeed = maxWallSlideSpeed;
-        this.wallLeap = wallLeap;
-        this.wallStickTime = wallStickTime;
-        this.wallUnstickTime = wallUnstickTime;
+    static SlidingPlayerState() {
     }
 
-    protected override void StateUpdate(ref Vector2 inputs, ref Vector3 velocity) {
+    private SlidingPlayerState() {
+    }
 
-        int wallDirectionX = controller.controller2D.collisionInfo.left ? -1 : 1;
+    public static SlidingPlayerState Instance {
+        get {
+            return singleton;
+        }
+    }
 
-        float targetVelocityX = inputs.x * controller.finalMoveSpeed;
+    public override void Enter(Player player, ref Vector3 velocity) {
+    }
+
+    public override void Exit(Player player) {
+    }
+
+    protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
+
+        int wallDirectionX = player.controller.controller2D.collisionInfo.left ? -1 : 1;
+
+        float targetVelocityX = inputs.x * player.controller.finalMoveSpeed;
         velocity.x = Mathf.SmoothDamp(velocity.x,
                                       targetVelocityX,
-                                      ref controller.smoothingVelocityX,
-                                      controller.controller2D.collisionInfo.below ? controller.accelerationTimeGrounded : controller.accelerationTimeAirborne);
+                                      ref player.controller.smoothingVelocityX,
+                                      player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
 
-        if (controller.controller2D.collisionInfo.below || owner.isStunned) {
-            controller.SwitchState(PlayerController.States.IDLE);
+        if (player.controller.controller2D.collisionInfo.below || player.isStunned) {
+            player.controller.SwitchState(PlayerController.States.IDLE);
         }
-        else if(!controller.controller2D.collisionInfo.right && !controller.controller2D.collisionInfo.left
-            && !controller.controller2D.collisionInfo.oldRight && !controller.controller2D.collisionInfo.oldLeft) {
-            controller.SwitchState(PlayerController.States.IDLE);
+        else if(!player.controller.controller2D.collisionInfo.right && !player.controller.controller2D.collisionInfo.left
+            && !player.controller.controller2D.collisionInfo.oldRight && !player.controller.controller2D.collisionInfo.oldLeft) {
+            player.controller.SwitchState(PlayerController.States.IDLE);
         }
         else {
-            if (velocity.y < -maxWallSlideSpeed) {
-                velocity.y = -maxWallSlideSpeed;
+            if (velocity.y < -player.controller.maxWallSlideSpeed) {
+                velocity.y = -player.controller.maxWallSlideSpeed;
             }
-            if (wallUnstickTime > 0) {
-                controller.smoothingVelocityX = 0;
+            if (player.controller.wallUnstickTime > 0) {
+                player.controller.smoothingVelocityX = 0;
                 velocity.x = 0;
 
                 if (inputs.x != wallDirectionX && inputs.x != 0) {
-                    wallUnstickTime -= Time.deltaTime;
+                    player.controller.wallUnstickTime -= Time.deltaTime;
                 }
                 else {
-                    wallUnstickTime = wallStickTime;
+                    player.controller.wallUnstickTime = player.controller.wallStickTime;
                 }
             }
             else {
-                wallUnstickTime = wallStickTime;
+                player.controller.wallUnstickTime = player.controller.wallStickTime;
             }
 
-            if (owner.inputDevice.GetControl(PlayerActions.JUMP).WasPressed) {
-                controller.SwitchState(PlayerController.States.WALL_JUMPING);
+            if (player.inputDevice.GetControl(PlayerActions.JUMP).WasPressed) {
+                player.controller.SwitchState(PlayerController.States.WALL_JUMPING);
             }
         }
     }

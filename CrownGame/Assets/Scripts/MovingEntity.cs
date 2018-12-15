@@ -23,14 +23,20 @@ public abstract class MovingEntity : MonoBehaviour {
     }
 
     protected float gravity;
-    protected float smoothingVelocityX;
+    internal float smoothingVelocityX;
 
-    protected float accelerationTimeAirborne = 0.2f;
-    protected float accelerationTimeGrounded = 0.1f;
+    internal float accelerationTimeAirborne = 0.2f;
+    internal float accelerationTimeGrounded = 0.1f;
 
-    protected Controller2D controller;
+    internal Vector2 direction = Vector2.right;
+    internal Controller2D controller;
     protected Vector2 velocity;
-    protected Vector2 direction;
+
+    public Controller2D.CollisionInfo collisionInfo {
+        get {
+            return controller.collisionInfo;
+        }
+    }
 
     protected virtual void Start() {
         controller = GetComponent<Controller2D>();
