@@ -6,7 +6,6 @@ using InControl;
 [RequireComponent(typeof(Controller2D))]
 public class PlayerController : MonoBehaviour {
 
-    [Header("Movement parameters")]
     public List<float> moveSpeedPerNumberOfCrowns;
     internal float moveSpeed = 12;
 
@@ -66,6 +65,11 @@ public class PlayerController : MonoBehaviour {
 
     // TODO: Move to crown
     [Header("Default dash parameters")]
+    [Range(0.1f, 0.5f)]
+    public float maxDashDuration = 0.1f;
+    [HideInInspector]
+    public float currentDashDuration;   // How much time the dash has travelled
+
     [Range(0.4f, 2.0f)]
     public List<float> dashChargeTimePerNumberOfCrowns;
     internal float maxDashChargeTime;
@@ -75,16 +79,6 @@ public class PlayerController : MonoBehaviour {
     public float dashCharge {
         get {
             return Mathf.Min(currentDashChargeTime / maxDashChargeTime, 1.0f);
-        }
-    }
-
-    [Range(0.1f, 0.5f)]
-    public float maxDashDuration = 0.1f;
-    [HideInInspector]
-    public float currentDashDuration;   // How much time the dash has travelled
-    public float chargedDuration {
-        get {
-            return Mathf.Lerp(0.0f, maxDashDuration, dashCharge);
         }
     }
 
@@ -114,22 +108,6 @@ public class PlayerController : MonoBehaviour {
             }
 
             return new Vector2(dashX, dashY).normalized;
-        }
-    }
-
-    [Header("Hit parameters")]
-    [Range(0.1f, 1.0f)]
-    public float hitRecoilDuration = 0.3f;
-    internal float currentHitRecoilTime = 0.0f;
-
-    [Header("Side bump parameters")]
-    [Range(1.0f, 10.0f)]
-    public float sideBumpDistance = 2.0f;
-    public float sideBumpDuration = 0.3f;
-    internal float currentSideBumpTime = 0.0f;
-    public float sideBumpSpeed {
-        get {
-            return sideBumpDistance / sideBumpDuration;
         }
     }
 
@@ -179,7 +157,7 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    internal Vector3 velocity;
+    private Vector3 velocity;
 
     internal float smoothingVelocityX;
 
@@ -193,9 +171,7 @@ public class PlayerController : MonoBehaviour {
     internal Player player;
     private PlayerState currentState;
 
-    public enum Messages {SIDE_BUMP};
-
-    public enum States { IDLE, JUMPING, AIRBORNE, SLIDING, WALL_JUMPING, DASHING, HIT, SIDE_BUMP};
+    public enum States { IDLE, JUMPING, AIRBORNE, SLIDING, WALL_JUMPING, DASHING}
     public States currentEnumState;
     internal bool isLocked;
 
@@ -244,7 +220,7 @@ public class PlayerController : MonoBehaviour {
     }
 
     private void OnTriggerEnter2D(Collider2D collision) {
-        currentState.HandleCollision(gameObject, collision, ref velocity);
+        currentState.HandleCollision(gameObject, collision);
     }
 
     private void OnTriggerStay2D(Collider2D collision) {
@@ -287,18 +263,12 @@ public class PlayerController : MonoBehaviour {
             case States.AIRBORNE:
                 SwitchState(AirborneState.Instance);
                 break;
-            case States.HIT:
-                SwitchState(HitState.Instance);
-                break;
-            case States.SIDE_BUMP:
-                SwitchState(SideBumpState.Instance);
-                break;
         }
     }
 
     public void SwitchState(PlayerState newState) {
         if(currentState != null) {
-            currentState.Exit(player, ref velocity);
+            currentState.Exit(player);
         }
         currentState = newState;
         currentState.Enter(player, ref velocity);

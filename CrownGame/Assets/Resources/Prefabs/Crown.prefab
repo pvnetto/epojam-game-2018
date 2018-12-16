@@ -24,7 +24,7 @@ GameObject:
   - component: {fileID: 114308885122698462}
   - component: {fileID: 114898931690131788}
   m_Layer: 9
-  m_Name: BunnyCrown
+  m_Name: Crown
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -101,9 +101,9 @@ MonoBehaviour:
   jumpMinHeight: 1.5
   jumpMaxHeight: 4
   timeToJumpMaxHeight: 0.4
-  maxDashDuration: 0.12
+  maxDashDuration: 0.3
   currentDashDuration: 0
-  dashDistance: 8
+  dashDistance: 20
   dashCooldown: 0.5
 --- !u!212 &212341577055612236
 SpriteRenderer:

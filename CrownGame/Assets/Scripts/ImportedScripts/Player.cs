@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using InControl;
 
 [RequireComponent(typeof(PlayerController))]
@@ -29,12 +30,6 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
     private FlashController flashController;
     internal SpriteRenderer spriteRenderer;
     internal PlayerController controller;
-
-    public Controller2D.CollisionInfo collisionInfo {
-        get {
-            return controller.controller2D.collisionInfo;
-        }
-    }
 
     public delegate void OnCrownPick();
     public event OnCrownPick onCrownPick;
@@ -83,27 +78,7 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
     }
 
     public void DropRandomCrown() {
-        if(crowns.Count > 0) {
-            // Drops a random crown and removes it from the crowns list
-            int droppedCrownIndex = Random.Range(0, crowns.Count);
-            Crown droppedCrown = crowns[droppedCrownIndex];
-            crowns.Remove(droppedCrown);
 
-            droppedCrown.Drop(Vector2.up * 10.0f);
-
-            // Equips the player another crown if there is any
-            if(droppedCrown == equippedCrown) {
-                if(crowns.Count > 0) {
-                    equippedCrown = crowns[0];
-                    equippedCrownIndex = 0;
-                }
-                else {
-                    equippedCrown = null;
-                }
-            }
-        }
-
-        onCrownDrop.Invoke();
     }
 
     protected void SetAllyList() {
@@ -124,9 +99,7 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
     }
 
     public void Damage() {
-        //BroadcastMessage("Flash");
-
-        DropRandomCrown();
+        BroadcastMessage("Flash");
     }
 
     public void Hit(GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {

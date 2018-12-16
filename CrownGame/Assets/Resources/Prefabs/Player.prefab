@@ -114,11 +114,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cf1f21beac41d14ea7dbd2fffa53bbe, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeedPerNumberOfCrowns:
-  - 14
-  - 12
-  - 10
-  - 8
+  moveSpeed: 14
   jumpMinHeight: 1.5
   jumpMaxHeight: 5
   timeToJumpMaxHeight: 0.35
@@ -130,20 +126,13 @@ MonoBehaviour:
   wallStickTime: 0
   wallJumpEndTime: 0
   wallUnstickTime: 0
-  dashChargeTimePerNumberOfCrowns:
-  - 0.5
-  - 0.7
-  - 0.9
-  - 1.2
-  currentDashChargeTime: 0
-  maxDashDuration: 0.2
+  maxDashDuration: 0.5
   currentDashDuration: 0
-  dashDistance: 8
+  maxDashChargeTime: 0.5
+  currentDashChargeTime: 0
+  dashDistance: 4
   dashCooldown: 0.5
   isDashBack: 1
-  hitRecoilDuration: 0.3
-  sideBumpDistance: 2
-  sideBumpDuration: 0.3
   currentEnumState: 0
 --- !u!114 &114775574831679404
 MonoBehaviour:
@@ -158,7 +147,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   collisionMask:
     serializedVersion: 2
-    m_Bits: 311
+    m_Bits: 55
   horizontalRayCount: 20
   verticalRayCount: 20
   maxSlopeClimbAngle: 80
@@ -206,8 +195,8 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 1253348077
-  m_SortingLayer: 1
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300092, guid: bdf918dc6cc28f14bb0f2bf283bad9c6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}

@@ -20,7 +20,7 @@ public class AirborneState : PlayerState {
 
     public override void Enter(Player player, ref Vector3 velocity) {   }
 
-    public override void Exit(Player player, ref Vector3 velocity) {  }
+    public override void Exit(Player player) {  }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
 
