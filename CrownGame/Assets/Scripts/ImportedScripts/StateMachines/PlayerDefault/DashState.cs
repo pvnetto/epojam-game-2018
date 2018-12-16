@@ -68,11 +68,15 @@ public class DashState : PlayerState {
         player.controller.currentDashDuration = 0.0f;
 
         velocity += (Vector3)(player.controller.dashLeap * player.controller.dashSpeed); //* player.controller.dashCharge;
+
+        player.partsAnimator.EnableTrails();
     }
 
     public override void Exit(Player player, ref Vector3 velocity) {
         player.controller.currentDashChargeTime = 0.0f;
         velocity = velocity / 3.0f;
+
+        player.partsAnimator.DisableTrails();
     }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {

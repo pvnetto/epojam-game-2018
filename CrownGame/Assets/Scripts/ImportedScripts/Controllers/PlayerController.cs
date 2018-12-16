@@ -199,8 +199,6 @@ public class PlayerController : MonoBehaviour {
     public States currentEnumState;
     internal bool isLocked;
 
-    /*Temporary variables*/
-    private float initialXScale;
     private Vector2 knockbackForce = Vector2.zero;
 
     // Input variables
@@ -213,8 +211,6 @@ public class PlayerController : MonoBehaviour {
         playerSpriteRenderer = GetComponent<SpriteRenderer>();
         playerCollider = GetComponent<Collider2D>();
         player = GetComponent<Player>();
-
-        initialXScale = transform.localScale.x;
 
         xHeading = 1;
 
@@ -316,6 +312,9 @@ public class PlayerController : MonoBehaviour {
                                               transform.position.y + yAxis,
                                               transform.position.z);
             bool isFlipped = joystickPos.x < transform.position.x;
+
+            float xScale = isFlipped ? -1.0f : 1.0f;
+            transform.localScale = new Vector3(xScale, 1.0f, 1.0f);
         }
     }
 	

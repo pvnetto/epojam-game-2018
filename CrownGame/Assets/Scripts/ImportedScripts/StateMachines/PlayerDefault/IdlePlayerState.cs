@@ -24,7 +24,9 @@ public class IdlePlayerState : PlayerState {
         player.controller.isDashBack = true;
     }
 
-    public override void Exit(Player player, ref Vector3 velocity) {  }
+    public override void Exit(Player player, ref Vector3 velocity) {
+        player.animator.SetBool("running", false);
+    }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
 
@@ -34,6 +36,7 @@ public class IdlePlayerState : PlayerState {
                                       targetVelocityX,
                                       ref player.controller.smoothingVelocityX,
                                       player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
+
 
         if (!player.isStunned) {
             if (!player.controller.controller2D.collisionInfo.below) {
@@ -53,5 +56,8 @@ public class IdlePlayerState : PlayerState {
                 player.controller.SwitchState(PlayerController.States.SLIDING);
             }
         }
+
+        player.animator.SetBool("running", targetVelocityX != 0);
+
     }
 }

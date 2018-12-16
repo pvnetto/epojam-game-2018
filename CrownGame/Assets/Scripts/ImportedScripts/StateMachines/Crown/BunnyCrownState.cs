@@ -66,11 +66,17 @@ public class BunnyCrownState : PlayerState {
     public override void Enter(Player player, ref Vector3 velocity) {
         player.equippedCrown.isDashBack = false;
         player.equippedCrown.currentDashDuration = 0.0f;
+
+        velocity += (Vector3)(player.controller.dashLeap * player.controller.dashSpeed);
+
+        player.partsAnimator.EnableTrails();
     }
 
     public override void Exit(Player player, ref Vector3 velocity) {
         player.controller.currentDashChargeTime = 0.0f;
         velocity = velocity / 3.0f;
+
+        player.partsAnimator.DisableTrails();
     }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {

@@ -29,6 +29,8 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
     private FlashController flashController;
     internal SpriteRenderer spriteRenderer;
     internal PlayerController controller;
+    internal Animator animator;
+    internal PartsAnimator partsAnimator;
 
     public Controller2D.CollisionInfo collisionInfo {
         get {
@@ -46,6 +48,8 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
         spriteRenderer = GetComponent<SpriteRenderer>();
         flashController = GetComponent<FlashController>();
         controller = GetComponent<PlayerController>();
+        animator = GetComponent<Animator>();
+        partsAnimator = GetComponent<PartsAnimator>();
     }
 
     protected virtual void Start () {
