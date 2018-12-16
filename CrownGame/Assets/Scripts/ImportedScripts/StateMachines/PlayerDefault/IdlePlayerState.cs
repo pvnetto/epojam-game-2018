@@ -24,7 +24,7 @@ public class IdlePlayerState : PlayerState {
         player.controller.isDashBack = true;
     }
 
-    public override void Exit(Player player) {  }
+    public override void Exit(Player player, ref Vector3 velocity) {  }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
 

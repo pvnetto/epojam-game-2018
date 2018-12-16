@@ -80,6 +80,7 @@ public class Controller2D : RaycastController2D {
                 if (playerHit) {
                     collisionInfo.playerLeft = directionX == -1;
                     collisionInfo.playerRight = directionX == 1;
+
                     collisionInfo.playerHit = playerHit;
 
                     if (!owner) {

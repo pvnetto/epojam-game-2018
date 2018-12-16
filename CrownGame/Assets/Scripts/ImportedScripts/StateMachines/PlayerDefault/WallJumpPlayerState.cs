@@ -19,27 +19,6 @@ public class WallJumpPlayerState : PlayerState {
         }
     }
 
-    //public Vector2 wallLeap;
-    //public float leapDuration;
-
-    //private float wallJumpMomentumEnd;
-    //private float speedRatio {
-    //    get {
-    //        if(Time.time >= wallJumpMomentumEnd || leapDuration == 0) {
-    //            return 1.0f;
-    //        }
-    //        else {
-    //            return 1.0f - ((wallJumpMomentumEnd - Time.time) / leapDuration);
-    //        }
-    //    }
-    //}
-
-    //public WallJumpPlayerState(Player owner, Vector2 wallLeap, float duration, ref Vector3 velocity) : base(owner) {
-    //    this.wallLeap = wallLeap;
-    //    this.leapDuration = duration;
-    //    this.wallJumpMomentumEnd = Time.time + leapDuration;
-    //}
-
     public override void Enter(Player player, ref Vector3 velocity) {
         player.controller.wallJumpEndTime = Time.time + player.controller.wallJumpDuration;
 
@@ -48,7 +27,7 @@ public class WallJumpPlayerState : PlayerState {
         velocity.y = player.controller.wallLeap.y;
     }
 
-    public override void Exit(Player player) {  }
+    public override void Exit(Player player, ref Vector3 velocity) {  }
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
 

@@ -10,6 +10,11 @@ public class Crown : MovingEntity {
     [Header("Dash parameters")]
     [Range(0.1f, 0.5f)]
     public float maxDashDuration = 0.1f;
+    public float chargedDashDuration {
+        get {
+            return Mathf.Lerp(0.0f, maxDashDuration, ownerController.dashCharge);
+        }
+    }
     [HideInInspector]
     public float currentDashDuration;   // How much time the dash has travelled
 
@@ -67,6 +72,12 @@ public class Crown : MovingEntity {
         gameObject.SetActive(false);
 
         return this;
+    }
+
+    public void Drop(Vector2 knockbackForce) {
+        gameObject.SetActive(true);
+        AddKnockbackForce(knockbackForce);
+
     }
 
     public void AddKnockbackForce(Vector2 knockbackForce) {
