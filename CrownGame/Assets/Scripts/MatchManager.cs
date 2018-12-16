@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
+[System.Serializable]
 public struct LobbyPlayer
 {
     public int id;
@@ -14,29 +16,35 @@ public struct LobbyPlayer
 
 public class MatchManager : MonoBehaviour
 {
+    public System.Action<int, GameObject> spawnPlayers;
+
     public static MatchManager instance;
     private Dictionary<int, Player> players = new Dictionary<int, Player>();
-    private List<LobbyPlayer> lobby;
-    private Map currentMap;
-
-    public void setMap(Map map)
-    {
-        currentMap = map;
-    }
+    public List<LobbyPlayer> lobby;
+    [SerializeField] private GameObject prefab;
 
     private void Awake()
     {
-        lobby = new List<LobbyPlayer>();
-        if (instance)
+        if (instance == null)
         {
-            Destroy(instance.gameObject);
+            instance = this;
+            SceneManager.sceneLoaded += SceneManager_sceneLoaded;
+            DontDestroyOnLoad(gameObject);
         }
-        instance = this;
+        else
+        {
+            Destroy(gameObject);
+        }
+
+        if (instance.lobby == null || instance.lobby.Count == 0)
+        {
+            lobby = new List<LobbyPlayer>();
+        }
     }
 
-    private void Start()
+    private void SceneManager_sceneLoaded(Scene arg0, LoadSceneMode arg1)
     {
-        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 2)
+        if (arg0.name == "Game")
         {
             instantiatePlayers();
         }
@@ -46,12 +54,7 @@ public class MatchManager : MonoBehaviour
     {
         List<Player> list = new List<Player>();
 
-        foreach (Player player in players.Values)
-        {
-            list.Add(player);
-        }
-        currentMap.players = list;
-        currentMap.spawnPlayers();
+        spawnPlayers.Invoke(lobby.Count, prefab);
     }
 
     public void addLobbyPlayer(int index)

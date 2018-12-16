@@ -11,28 +11,22 @@ public class Map : MonoBehaviour
 
     private void Awake()
     {
+        MatchManager.instance.spawnPlayers += spawnPlayers;
+
         var mapSize = GetComponent<LevelEditor>().loadSource();
         Camera cam = Camera.main;
         cam.orthographicSize = mapSize.x > mapSize.y ? mapSize.y / 2 : mapSize.x / 2;
         cam.transform.position = new Vector3(mapSize.x / 2, mapSize.y / 2, cam.transform.position.z);
     }
 
-    private void Start()
+    public void spawnPlayers(int amount, GameObject prefab)
     {
-        MatchManager.instance.setMap(this);
-    }
-
-    public void spawnPlayers()
-    {
-        foreach(Player player in players)
+        for (int i = 0; i < amount; i++)
         {
-            /*
-            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            GameObject go = Instantiate(prefab);
+            Player player = go.GetComponent<Player>();
+            player.SetPlayerID(i);
             go.transform.position = playersSpawnPoints[player.playerID].position;
-            Debug.Log("oi");
-            /**/
-            //TODO: Ter um player valido pra instanciar
-            player.gameObject.transform.position = playersSpawnPoints[player.playerID].position;
         }
     }
 

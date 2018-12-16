@@ -4,8 +4,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using InControl;
 
-public class MenuController : MonoBehaviour {
-
+public class MenuController : MonoBehaviour
+{
     [SerializeField] private GameObject[] playersCard;
     [SerializeField] private PlayerColorPallete[] playerPalletes;
     [SerializeField] private GameObject[] canvas;
@@ -39,6 +39,7 @@ public class MenuController : MonoBehaviour {
     public void confirmPlayer(int index)
     {
         colorizePlayerCard(playerPalletes[index], index);
+        MatchManager.instance.addLobbyPlayer(index);
     }
     
     private void colorizePlayerCard(PlayerColorPallete pallete, int index)
@@ -56,7 +57,7 @@ public class MenuController : MonoBehaviour {
 
     private void loadGameScene()
     {
-        UnityEngine.SceneManagement.SceneManager.LoadScene(2);
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Game");
     }
 
     public void quit()

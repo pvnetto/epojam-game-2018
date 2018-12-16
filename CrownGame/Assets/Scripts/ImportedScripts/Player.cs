@@ -51,13 +51,16 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
     protected virtual void Start () {
         //TODO Remove this check
         // This is used for editor testing purposes. It automatically assigns an available ID to the player.
-        if(playerID == 0) {
+        /*
+        if (playerID == 0) {
             if (MatchManager.instance) {
                 SetPlayerID(MatchManager.instance.SubscribePlayer(this));
             }
         }
-
-        inputDevice = InputManager.Devices[playerID - 1];
+        /**/
+        Debug.Log(playerID);
+        Debug.Log(InputManager.Devices.Count);
+        inputDevice = InputManager.Devices[playerID];
 
         SetAllyList();
 

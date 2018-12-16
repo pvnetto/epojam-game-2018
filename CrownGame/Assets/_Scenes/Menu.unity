@@ -442,7 +442,7 @@ GameObject:
   - component: {fileID: 491339082}
   - component: {fileID: 491339081}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: Incontrol
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1251,7 +1251,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400, y: -374.67706}
+  m_AnchoredPosition: {x: 400, y: -375.55557}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1284484318
@@ -1518,7 +1518,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400, y: -224.80623}
+  m_AnchoredPosition: {x: 400, y: -225.33334}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1770585385
@@ -2019,6 +2019,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b71c64d27153926428a35273b7dff0c7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  lobby: []
+  prefab: {fileID: 1963030992743418, guid: ae2806d9497bfea4488b27c525aadbb3, type: 2}
   isPaused: 0
 --- !u!4 &1923004925
 Transform:
@@ -2067,7 +2069,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 400, y: -74.93541}
+  m_AnchoredPosition: {x: 400, y: -75.111115}
   m_SizeDelta: {x: 160, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1927604462
