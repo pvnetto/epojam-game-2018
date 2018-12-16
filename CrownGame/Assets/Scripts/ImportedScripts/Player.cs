@@ -8,26 +8,34 @@ using InControl;
 [RequireComponent(typeof(FlashController))]
 public class Player : MonoBehaviour, IHittable, IStunnable {
 
-
     public bool isStunned {
         get {
             return ccManager.stunned;
         }
     }
 
-    internal SpriteRenderer spriteRenderer;
-    internal PlayerController controller;
-    private FlashController flashController;
-
+    public int playerID { get; protected set; }
     protected List<int> alliedPlayersNumbers;
 
-    public int playerID { get; protected set; }
+    // Crown parameters
+    internal List<Crown> crowns = new List<Crown>();
+    public Crown equippedCrown { get; private set; }
+    private int equippedCrownIndex;
 
     private bool dead = false;  /*Stops the damage function from calling Die multiple times*/
 
     internal CCManager ccManager = new CCManager();
 
     public InputDevice inputDevice;
+    private FlashController flashController;
+    internal SpriteRenderer spriteRenderer;
+    internal PlayerController controller;
+
+    public delegate void OnCrownPick();
+    public event OnCrownPick onCrownPick;
+
+    public delegate void OnCrownDrop();
+    public event OnCrownDrop onCrownDrop;
 
     private void Awake() {
         spriteRenderer = GetComponent<SpriteRenderer>();
@@ -39,11 +47,9 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
         //TODO Remove this check
         // This is used for editor testing purposes. It automatically assigns an available ID to the player.
         if(playerID == 0) {
-            //Debug.LogError("PlayerID is 0!");
             if (MatchManager.instance) {
                 SetPlayerID(MatchManager.instance.SubscribePlayer(this));
             }
-            //SetPlayerID(MatchManager.instance ? MatchManager.instance.GetAvailableID() : 1);
         }
 
         Debug.Log(InputManager.Devices.Count);
@@ -51,23 +57,28 @@ public class Player : MonoBehaviour, IHittable, IStunnable {
         inputDevice = InputManager.Devices[playerID - 1];
 
         SetAllyList();
+
+        // Setting the callbacks for crown picking and dropping
+        onCrownPick += controller.SetDashChargeTime;
+        onCrownPick += controller.SetPlayerSpeed;
+
+        onCrownDrop += controller.SetDashChargeTime;
+        onCrownDrop += controller.SetPlayerSpeed;
     }
 
-    //public void Setup(LobbyPlayer lobbyPlayer, OnDie onDieCallback) {
-    //    SetPlayerID(lobbyPlayer.playerID);
+    public void AddCrown(Crown crown) {
+        crowns.Add(crown);
 
-    //    if (lobbyPlayer.supportItem.tag == "Weapon") {
-    //        weaponManager.AddWeapon(lobbyPlayer.supportItem);
-    //    }
-    //    else {
-    //        GameObject supportItem = Instantiate(lobbyPlayer.supportItem);
-    //        supportItem.transform.SetParent(gameObject.transform);
-    //        supportItem.transform.localPosition = Vector3.zero;
-    //        supportItem.SetActive(true);
-    //    }
+        if (!equippedCrown) {
+            equippedCrown = crown;
+        }
 
-    //    onDie += onDieCallback;
-    //}
+        onCrownPick.Invoke();
+    }
+
+    public void DropRandomCrown() {
+
+    }
 
     protected void SetAllyList() {
         alliedPlayersNumbers = new List<int>();

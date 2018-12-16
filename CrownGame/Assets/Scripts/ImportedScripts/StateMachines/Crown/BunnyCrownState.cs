@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DashState : PlayerState {
+public class BunnyCrownState : PlayerState {
 
-    private static readonly DashState singleton = new DashState();
+    private static readonly BunnyCrownState singleton = new BunnyCrownState();
 
-    static DashState() {
+    static BunnyCrownState() {
     }
 
-    private DashState() {
+    private BunnyCrownState() {
     }
 
-    public static DashState Instance {
+    public static BunnyCrownState Instance {
         get {
             return singleton;
         }
@@ -27,7 +27,6 @@ public class DashState : PlayerState {
     }
 
     public override void HandleCollision(GameObject player, Collider2D collision) {
-        Debug.Log("Handling collision");
         Bunny bunny = collision.GetComponent<Bunny>();
 
         if (bunny) {
@@ -37,8 +36,8 @@ public class DashState : PlayerState {
     }
 
     public override void Enter(Player player, ref Vector3 velocity) {
-        player.controller.isDashBack = false;
-        player.controller.currentDashDuration = 0.0f;
+        player.equippedCrown.isDashBack = false;
+        player.equippedCrown.currentDashDuration = 0.0f;
     }
 
     public override void Exit(Player player) {
@@ -47,21 +46,13 @@ public class DashState : PlayerState {
 
     protected override void Update(Player player, ref Vector2 inputs, ref Vector3 velocity) {
 
-        player.controller.currentDashDuration += Time.deltaTime;
+        player.equippedCrown.currentDashDuration += Time.deltaTime;
 
         //inputs = inputs * maxSpeed;
+        Vector2 dashLeap = player.equippedCrown.dashLeap;
+        velocity = dashLeap * player.equippedCrown.dashSpeed * player.controller.dashCharge;
 
-        float targetVelocityX = player.controller.dashLeap.x * player.controller.dashSpeed * player.controller.dashCharge;
-
-        velocity.x = targetVelocityX;
-        //velocity.x = Mathf.SmoothDamp(velocity.x,
-        //                              targetVelocityX,
-        //                              ref player.controller.smoothingVelocityX,
-        //                              player.controller.controller2D.collisionInfo.below ? player.controller.accelerationTimeGrounded : player.controller.accelerationTimeAirborne);
-        
-        velocity.y = player.controller.dashLeap.y * player.controller.dashSpeed * player.controller.dashCharge;
-
-        if (player.controller.currentDashDuration >= player.controller.maxDashDuration) {
+        if (player.equippedCrown.currentDashDuration >= player.equippedCrown.maxDashDuration) {
             if (player.controller.controller2D.collisionInfo.below) {
                 player.controller.SwitchState(PlayerController.States.IDLE);
             }

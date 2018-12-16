@@ -8,6 +8,10 @@ public abstract class PlayerState {
 
     public abstract void Exit(Player player);
 
+    public virtual void HandleCollision(GameObject player, Collider2D collision) {
+        // TODO: Sidebump
+    }
+
     public virtual void Hit(Player player, GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {
         hitRecord.hitObject = player;
         hitRecord.hitObjectID = player.playerID;

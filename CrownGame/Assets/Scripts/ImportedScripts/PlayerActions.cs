@@ -7,8 +7,7 @@ public static class PlayerActions {
 
     /*Maps player COMMANDS to controller ACTIONS.*/
     public static InputControlType JUMP = InputControlType.Action1;
-    public static InputControlType FIRE_1 = InputControlType.Action3;
-    public static InputControlType FIRE_2 = InputControlType.Action4;
+    public static InputControlType INTERACT = InputControlType.Action3;
     public static InputControlType ACTION_1 = InputControlType.RightTrigger;
 
     public static InputControlType PAUSE = InputControlType.LeftTrigger;

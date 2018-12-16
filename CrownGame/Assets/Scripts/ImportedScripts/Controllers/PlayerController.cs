@@ -6,7 +6,9 @@ using InControl;
 [RequireComponent(typeof(Controller2D))]
 public class PlayerController : MonoBehaviour {
 
-    public float moveSpeed = 12;
+    public List<float> moveSpeedPerNumberOfCrowns;
+    internal float moveSpeed = 12;
+
     [Header("Jump parameters")]
     public float jumpMinHeight = 1.5f;
     public float jumpMaxHeight = 4;
@@ -62,14 +64,16 @@ public class PlayerController : MonoBehaviour {
     public float wallUnstickTime;
 
     // TODO: Move to crown
-    [Header("Dash parameters")]
+    [Header("Default dash parameters")]
     [Range(0.1f, 0.5f)]
     public float maxDashDuration = 0.1f;
     [HideInInspector]
     public float currentDashDuration;   // How much time the dash has travelled
 
     [Range(0.4f, 2.0f)]
-    public float maxDashChargeTime = 1.0f;
+    public List<float> dashChargeTimePerNumberOfCrowns;
+    internal float maxDashChargeTime;
+
     [HideInInspector]
     public float currentDashChargeTime = 0.0f;
     public float dashCharge {
@@ -78,13 +82,16 @@ public class PlayerController : MonoBehaviour {
         }
     }
 
-    [Range(20, 120)]
-    public int dashSpeed = 60;
+    [Range(2, 100)]
+    public float dashDistance = 4;
+    internal float dashSpeed;
 
     [Range(2.0f, 5.0f)]
     public float dashCooldown = 0.5f;
     private float lastDashTime = 0.0f;
+
     // This is set to false when the dash is used, and set to true when the player is grounded again
+    [HideInInspector]
     public bool isDashBack = true;
     public bool isDashAvailable {
         get {
@@ -103,7 +110,6 @@ public class PlayerController : MonoBehaviour {
             return new Vector2(dashX, dashY).normalized;
         }
     }
-
 
     internal float accelerationTimeAirborne = 0.2f;
     internal float accelerationTimeGrounded = 0.1f;
@@ -174,7 +180,8 @@ public class PlayerController : MonoBehaviour {
     private Vector2 knockbackForce = Vector2.zero;
 
     // Input variables
-    float xAxis = 0, yAxis = 0;
+    public float xAxis { get; private set; }
+    public float yAxis { get; private set; }
 
     private void Awake() {
         controller2D = GetComponent<Controller2D>();
@@ -186,16 +193,44 @@ public class PlayerController : MonoBehaviour {
         initialXScale = transform.localScale.x;
 
         xHeading = 1;
+
+        // Calculating the dash speed
+        dashSpeed = dashDistance / maxDashDuration;
     }
 
     private void Start () {
         gravity = -(2 * jumpMaxHeight) / Mathf.Pow(timeToJumpMaxHeight, 2);
 
         currentState = IdlePlayerState.Instance;
+
+        SetDashChargeTime();
+        SetPlayerSpeed();
 	}
+
+    public void SetDashChargeTime() {
+        maxDashChargeTime = dashChargeTimePerNumberOfCrowns[player.crowns.Count];
+    }
+
+    public void SetPlayerSpeed() {
+        moveSpeed = moveSpeedPerNumberOfCrowns[player.crowns.Count];
+    }
 
     public void Hit(GameObject attacker, ref HitRecord hitRecord, Vector2 knockbackForce) {
         currentState.Hit(player, attacker, ref hitRecord, knockbackForce);
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision) {
+        currentState.HandleCollision(gameObject, collision);
+    }
+
+    private void OnTriggerStay2D(Collider2D collision) {
+        Crown crown = collision.GetComponent<Crown>();
+
+        if (crown) {
+            if (player.inputDevice.GetControl(PlayerActions.INTERACT).WasPressed) {
+                crown.Pick(gameObject);
+            }
+        }
     }
 
     public void Knockback(Vector2 force) {
@@ -218,7 +253,12 @@ public class PlayerController : MonoBehaviour {
                 SwitchState(WallJumpPlayerState.Instance);
                 break;
             case States.DASHING:
-                SwitchState(DashState.Instance);
+                if (player.equippedCrown != null) {
+                    SwitchState(player.equippedCrown.dashState);
+                }
+                else {
+                    SwitchState(DashState.Instance);
+                }
                 break;
             case States.AIRBORNE:
                 SwitchState(AirborneState.Instance);
@@ -261,17 +301,17 @@ public class PlayerController : MonoBehaviour {
             currentDashChargeTime += Time.deltaTime;
         }
 
-        if(knockbackForce != Vector2.zero) {
+        if (knockbackForce != Vector2.zero) {
             velocity += (Vector3)knockbackForce;
             knockbackForce = Vector2.zero;
         }
 
         currentState.Execute(player, ref inputs, ref velocity);
 
-        velocity.y += (finalGravity * Time.deltaTime);
-        //if (!(currentState is DashState)) {
-        //    velocity.y += (finalGravity * Time.deltaTime);
-        //}
+        //velocity.y += (finalGravity * Time.deltaTime);
+        if (!(currentState is DashState)) {
+            velocity.y += (finalGravity * Time.deltaTime);
+        }
 
         controller2D.Move(velocity * Time.deltaTime, inputs);
 
