@@ -6,7 +6,7 @@ public class Map : MonoBehaviour
 {
     [SerializeField] private Transform[] playersSpawnPoints;
     [SerializeField] private Transform[] npcsSpawnPoints;
-    public Player[] players;
+    public List<Player> players;
     public Vector2 offset;
 
     private void Awake()
@@ -17,10 +17,21 @@ public class Map : MonoBehaviour
         cam.transform.position = new Vector3(mapSize.x / 2, mapSize.y / 2, cam.transform.position.z);
     }
 
-    private void spawnPlayers()
+    private void Start()
+    {
+        MatchManager.instance.setMap(this);
+    }
+
+    public void spawnPlayers()
     {
         foreach(Player player in players)
         {
+            /*
+            GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+            go.transform.position = playersSpawnPoints[player.playerID].position;
+            Debug.Log("oi");
+            /**/
+            //TODO: Ter um player valido pra instanciar
             player.gameObject.transform.position = playersSpawnPoints[player.playerID].position;
         }
     }

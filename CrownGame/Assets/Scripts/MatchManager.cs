@@ -2,16 +2,61 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class MatchManager : MonoBehaviour {
+public struct LobbyPlayer
+{
+    public int id;
 
+    public LobbyPlayer(int index)
+    {
+        id = index;
+    }
+}
+
+public class MatchManager : MonoBehaviour
+{
     public static MatchManager instance;
     private Dictionary<int, Player> players = new Dictionary<int, Player>();
+    private List<LobbyPlayer> lobby;
+    private Map currentMap;
 
-    private void Awake() {
-        if (instance) {
+    public void setMap(Map map)
+    {
+        currentMap = map;
+    }
+
+    private void Awake()
+    {
+        lobby = new List<LobbyPlayer>();
+        if (instance)
+        {
             Destroy(instance.gameObject);
         }
         instance = this;
+    }
+
+    private void Start()
+    {
+        if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().buildIndex == 2)
+        {
+            instantiatePlayers();
+        }
+    }
+
+    private void instantiatePlayers()
+    {
+        List<Player> list = new List<Player>();
+
+        foreach (Player player in players.Values)
+        {
+            list.Add(player);
+        }
+        currentMap.players = list;
+        currentMap.spawnPlayers();
+    }
+
+    public void addLobbyPlayer(int index)
+    {
+        lobby.Add(new LobbyPlayer(index));
     }
 
     public bool isPaused = false;
@@ -41,5 +86,4 @@ public class MatchManager : MonoBehaviour {
 
         return 0;
     }
-
 }

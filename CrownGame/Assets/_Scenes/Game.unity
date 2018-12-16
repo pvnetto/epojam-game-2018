@@ -131,7 +131,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!65 &2214558
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -194,7 +194,7 @@ Transform:
   m_GameObject: {fileID: 2214557}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 960, y: 540, z: 0}
-  m_LocalScale: {x: 100, y: 100, z: 1}
+  m_LocalScale: {x: 20, y: 20, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 2
@@ -210,8 +210,68 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6288d3cea64bf8a42b8755a194ebc643, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movementRange: 50
+  moveSpeed: 0
+  jumpMinHeight: 1.5
+  jumpMaxHeight: 4
+  timeToJumpMaxHeight: 0.4
   speed: 30
+  wallBumpLeap: {x: 0, y: 0}
+--- !u!1 &254523489
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 254523490}
+  m_Layer: 0
+  m_Name: GameObject (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &254523490
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 254523489}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 200, y: 200, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1188213400
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1188213401}
+  m_Layer: 0
+  m_Name: GameObject (2)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1188213401
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1188213400}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 600, y: 200, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1543816289
 GameObject:
   m_ObjectHideFlags: 0
@@ -222,6 +282,7 @@ GameObject:
   - component: {fileID: 1543816292}
   - component: {fileID: 1543816291}
   - component: {fileID: 1543816290}
+  - component: {fileID: 1543816293}
   m_Layer: 0
   m_Name: GameObject
   m_TagString: Untagged
@@ -240,12 +301,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cab5262785b54d642b1d98398d59b8f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  source: {fileID: 2800000, guid: c58fcc3040520704b87460d79f56012e, type: 3}
+  source: {fileID: 2800000, guid: e323071522b52664e81e37f9015630ac, type: 3}
   pixels:
   - color: {r: 0, g: 0, b: 0, a: 1}
     asset: {fileID: 1105350965120856, guid: 237096439b1b3be439183675ce3af811, type: 2}
-  - color: {r: 0.3372549, g: 0.9725491, b: 1, a: 1}
+  - color: {r: 1, g: 0, b: 0, a: 1}
     asset: {fileID: 1598555677778670, guid: 61760a8557b9f13489370d9f0a6c1806, type: 2}
+  - color: {r: 0, g: 1, b: 0, a: 1}
+    asset: {fileID: 1795100122720920, guid: e8998254622435941bfc52ddaa625dd8, type: 2}
 --- !u!114 &1543816291
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -257,7 +320,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 09ef5f3336fe5b949829d1ef5f49cc9d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playersSpawnPoints: []
+  playersSpawnPoints:
+  - {fileID: 254523490}
+  - {fileID: 1188213401}
   npcsSpawnPoints: []
   players: []
   offset: {x: 2.8, y: -20.6}
@@ -274,6 +339,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1543816293
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1543816289}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b71c64d27153926428a35273b7dff0c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  isPaused: 0
 --- !u!1 &1805565954
 GameObject:
   m_ObjectHideFlags: 0
